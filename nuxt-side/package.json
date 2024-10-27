@@ -1,0 +1,24 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@panzoom/panzoom": "^4.5.1",
+    "axios": "^1.7.7",
+    "marked": "^14.1.3",
+    "nuxt": "^3.13.0",
+    "vue": "latest",
+    "vue-router": "latest",
+    "wheelzoom": "^4.0.1"
+  },
+  "devDependencies": {
+    "sass": "^1.79.4"
+  }
+}
