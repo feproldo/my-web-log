@@ -52,6 +52,7 @@ axios.post(server+'article', { id: useRoute().params.id })
         padding: 32%;
         padding-top: 75px !important;
         padding-bottom: 0 !important;
+        
         h1 {
             font-size: 48px;
         }
@@ -61,6 +62,8 @@ axios.post(server+'article', { id: useRoute().params.id })
             border-bottom: 2px solid vars.$border;
             margin-bottom: 16px;
             text-align: end;
+            background-color: vars.$background;
+            z-index: 250;
             h6 {
                 color: vars.$gray;
             }

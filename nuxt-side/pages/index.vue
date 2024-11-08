@@ -159,9 +159,7 @@ import { server } from '~/public/utils';
 //         .catch(error => //console.error('Ошибка входа:', error));
 // }
 
-particlesJS.load('particles-js', '/particles/particles.json', function() {
-  ////console.log('callback - particles.js config loaded');
-});
+
 function formatDate(date) {
     if (!(date instanceof Date)) {
         date = new Date(date);
@@ -192,7 +190,7 @@ function formatDate(date) {
 <template>
     <main>
         <!-- <AppFocusImg :src="focusImg.src" v-if="focusImg.isFocused" v-model="focusImg.isFocused"/> -->
-        <div id="particles-js"></div>
+        
         <div class="title">
             <div class="border" v-if="false"><h1>feproldo's web-log</h1></div>
             <div class="blogs">
@@ -256,7 +254,7 @@ function formatDate(date) {
         padding: 100px 32px 32px 32px;
         width: 100vw;
         min-height: 100vh;
-        
+        z-index: 250;
         .title {
             width: 100%;
             display: flex;
