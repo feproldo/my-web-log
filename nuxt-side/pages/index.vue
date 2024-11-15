@@ -32,12 +32,27 @@ import { server } from '~/public/utils';
 
     axios.get(server+"posts")
     .then(response => {
-        //console.log(response.data);
+        console.log(response.data);
         blogs.value = response.data;
     })
     .catch(error => {
         console.error('Error fetching data:', error);
     });
+
+    import { ref, computed } from 'vue';
+    const searchQuery = ref('');
+
+    const filteredPosts = computed(() => {
+        if (searchQuery.value === '') {
+            return blogs.value;
+        }
+        return blogs.value.filter(post => {
+            return post.title.includes(searchQuery.value) ||
+                post.article.includes(searchQuery.value) ||
+                post.titleArticle.includes(searchQuery.value);
+        });
+    });
+
 
     function downloadFile(url, name) {
         const link = document.createElement('a');
@@ -173,6 +188,13 @@ function formatDate(date) {
     return `${day}.${month}.${year} - ${hours}:${minutes}`;
 }
 
+var tagsRef = ref(null)
+var tags = ref([
+    {
+        name: "Веб девлог",
+        active: false
+    }
+])
 
 // var focusImg = ref({
 //     isFocused: false,
@@ -191,8 +213,34 @@ function formatDate(date) {
     <main>
         <!-- <AppFocusImg :src="focusImg.src" v-if="focusImg.isFocused" v-model="focusImg.isFocused"/> -->
         
-        <div class="title">
+        <div class="container">
             <div class="border" v-if="false"><h1>feproldo's web-log</h1></div>
+            <div class="header">
+                <div class="input">
+                    <input type="text" placeholder="Поиск..." v-model="searchQuery">
+                    <div class="icon">
+                        <svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'><g id="search_line" fill='none' fill-rule='evenodd'><path fill='#09244BFF' d='M10.5 2a8.5 8.5 0 1 0 5.262 15.176l3.652 3.652a1 1 0 0 0 1.414-1.414l-3.652-3.652A8.5 8.5 0 0 0 10.5 2M4 10.5a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0'/></g></svg>
+                    </div>
+                </div>
+                <div class="tags_container">
+                    <div class="icon_left" @click="scrollLeft">
+                        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g id="left_fill" fill='none' fill-rule='evenodd'><path fill='#09244BFF' d='M7.94 13.06a1.5 1.5 0 0 1 0-2.12l5.656-5.658a1.5 1.5 0 1 1 2.121 2.122L11.122 12l4.596 4.596a1.5 1.5 0 1 1-2.12 2.122L7.938 13.06Z'/></g></svg>
+                    </div>
+                    <div class="tags" :ref="tagsRef">
+                        <div class="tag" v-for="(el, index) in tags" :key="index" :class="{active_tag: el.active}">
+                            {{ el.name }}
+                        </div>
+                    </div>
+                    <div class="icon_right" @click="scrollRight">
+                        <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g id="right_fill" fill='none' fill-rule='evenodd'><path fill='#09244BFF' d='M16.06 10.94a1.5 1.5 0 0 1 0 2.12l-5.656 5.658a1.5 1.5 0 1 1-2.121-2.122L12.879 12 8.283 7.404a1.5 1.5 0 0 1 2.12-2.122l5.658 5.657Z'/></g></svg>
+                    </div>
+                </div>
+                <div class="tip">
+                    <p>
+                        Листайте, наведясь на тэги, нажимая Shift + Прокрут Колеса
+                    </p>
+                </div>
+            </div>
             <div class="blogs">
                 <div class="blog" v-if="blogs.length == 0">
                     <div class="author">
@@ -204,7 +252,7 @@ function formatDate(date) {
                     <p>Постов пока-что нет.</p>
                 </div>
 
-                <div class="blog" :id="el._id" v-for="(el, index) in blogs" :key="index">
+                <div class="blog" :id="el._id" v-for="(el, index) in filteredPosts" :key="index">
                     <div class="author">
                         <div class="icon">
                             <img :src="el.author.img" alt="">
@@ -255,7 +303,7 @@ function formatDate(date) {
         width: 100vw;
         min-height: 100vh;
         z-index: 250;
-        .title {
+        .container {
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -263,6 +311,107 @@ function formatDate(date) {
             align-items: center;
             gap: 16px;
             z-index: 2;
+            .header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                .input {
+                    display: flex;
+                    border: 2px solid vars.$border;
+                    height: 50px;
+                    align-items: center;
+                    width: var(--width);
+                    border-radius: 8px;
+                    .icon {
+                        width: 50px;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        svg {
+                            path {
+                                fill: vars.$down
+                            }
+                        }
+                    }
+                    input {
+                        height: 100%;
+                        padding-left: 16px;
+                        flex: 1;
+                        border: 0;
+                        background-color: transparent;
+                        outline: 0;
+                        font-size: 24px;
+                        &::placeholder {
+                            color: vars.$down
+                        }
+                    }
+                }
+                .tags_container {
+                    width: var(--width);
+                    display: flex;
+                    position: relative;
+                    align-items: center;
+                    .icon_left {
+                        position: absolute;
+                        left: -32px;
+                        cursor: pointer;
+                        svg {
+                            path {
+                                fill: vars.$down;
+                            }
+                        }
+                    }
+                    .icon_right {
+                        position: absolute;
+                        right: -32px;
+                        cursor: pointer;
+                        svg {
+                            path {
+                                fill: vars.$down;
+                            }
+                        }
+                    }
+                    .tags {
+                        white-space: nowrap;
+                        height: fit-content;
+                        width: 100%;
+                        margin-top: 8px;
+                        overflow-x: scroll;
+                        .tag {
+                            display: inline-block;
+                            background-color: vars.$background;
+                            padding: 8px;
+                            border: 2px solid vars.$border;
+                            border-radius: 16px;
+                            cursor: pointer;
+                            margin-right: 8px;
+                            transition: .2s;
+                            &:hover {
+                                background-color: vars.$code;
+                                transition: .2s;
+                            }
+                        }
+                        .active_tag {
+                            background-color: vars.$border;
+                            transition: .2s;
+                        }
+                    }
+                    
+                }
+                .tip {
+                    width: var(--width);
+                    margin-top: 4px;
+                    p {
+                        font-size: 12px;
+                        text-align: center;
+                        color: vars.$down-hover;
+                    }
+                }
+            }
             .border {
                 width: var(--width);
                 text-align: center;
