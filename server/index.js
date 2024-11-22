@@ -245,7 +245,13 @@ app.post('/article', async (req, res) => {
     if (!article) {
       return res.status(404).send('Article not found');
     }
-    res.json(article);
+    const htmlContent = md.render(article.content);
+
+      res.json({
+          title: article.title,
+          content: htmlContent,
+          date: article.date
+      });
   } catch (error) {
     console.error(error);
     res.status(500).send('Error retrieving article');
