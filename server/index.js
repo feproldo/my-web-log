@@ -7,6 +7,8 @@ const fs = require('fs')
 const mongoose = require('mongoose');
 const multer = require('multer')
 const moment = require('moment-timezone');
+const MarkdownIt = require('markdown-it');
+const md = new MarkdownIt();
 const PORT = 3005;
 const isDev = true;
 const server = isDev ? "http://localhost:3005" : "https://blogapi.feproldo.ru";
@@ -347,8 +349,10 @@ app.post('/createArticle', upload.fields([{ name: 'imgs', maxCount: Infinity }])
     const imageUrl = `/uploads/${file.filename}`;
     console.log(index + ` (img${index}.feproldo) ` + imageUrl)
     updatedContent = updatedContent.replaceAll(`(img${index}.feproldo)`, "("+server+imageUrl+")");
+    updatedContent = updatedContent.replaceAll(`file${index}.feproldo`, server+imageUrl)
     console.log("\n"+updatedContent)
   });
+  
 
   const newArticle = new Article({
     title,

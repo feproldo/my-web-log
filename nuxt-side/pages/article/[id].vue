@@ -1,15 +1,18 @@
 <script setup>
 import axios from 'axios';
 import { server } from '~/public/utils';
-import {marked} from 'marked';
+// import {marked} from 'marked';
 var content = ref("")
 var title = ref("")
 var date = ref("")
+//var tags = ref([])
 axios.post(server+'article', { id: useRoute().params.id })
     .then(response => {
-        content.value = marked(response.data.content);
+        content.value = response.data.content;
         title.value = response.data.title;
+        //tags.value = response.data.tags
         date = response.data.date;
+        // console.log(response.data)
     })
     .catch(error => {console.error('Ошибка входа:', error); useRouter().push("/")});
     function formatDate(date) {
@@ -34,6 +37,13 @@ axios.post(server+'article', { id: useRoute().params.id })
     <!-- <div id="particles-js"></div> -->
     <main>
         <h1>{{ title }}</h1>
+        <!-- <div class="tags_container">
+            <div class="tags">
+                <div class="tag" v-for="(el, index) in tags" :key="index">
+                    {{ el }}
+                </div>
+            </div>
+        </div> -->
         <div class="info">
             <h6>
                 {{ formatDate(date || new Date()) }}
@@ -52,7 +62,39 @@ axios.post(server+'article', { id: useRoute().params.id })
         padding: 32%;
         padding-top: 75px !important;
         padding-bottom: 0 !important;
-        
+        .tags_container {
+            width: 100%;
+            display: flex;
+            position: relative;
+            align-items: center;
+            .tags {
+                white-space: nowrap;
+                height: fit-content;
+                width: 100%;
+                margin-top: 8px;
+                overflow-x: scroll;
+                scroll-behavior: none;
+                .tag {
+                    display: inline-block;
+                    background-color: vars.$background;
+                    padding: 8px;
+                    border: 2px solid vars.$border;
+                    border-radius: 16px;
+                    // cursor: pointer;
+                    margin-right: 8px;
+                    transition: .2s;
+                    // &:hover {
+                    //     background-color: vars.$code;
+                    //     transition: .2s;
+                    // }
+                }
+                // .active_tag {
+                //     background-color: vars.$border;
+                //     transition: .2s;
+                // }
+            }
+            
+        }
         h1 {
             font-size: 48px;
         }
