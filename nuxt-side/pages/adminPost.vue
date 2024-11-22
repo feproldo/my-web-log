@@ -98,7 +98,7 @@ function imgsUpload(event) {
 `однострочный код`
 ```несколько строчный код```
 
-![картинка](imgIndex.feproldo)
+fileIndex.feproldo
 [ссылка](https://example.com/)</pre>
             </div>
             <input type="text" v-model="deleteId" placeholder="id to delete">

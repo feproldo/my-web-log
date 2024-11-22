@@ -342,13 +342,13 @@ app.post('/createArticle', upload.fields([{ name: 'imgs', maxCount: Infinity }])
   }
   const documentExists = await Article.findOne({ id: id });
   if(documentExists) return res.json({text: "Already exist"}).status(400)
-  const images = req.files['imgs'] || [];
+  const files = req.files['imgs'] || [];
 
   let updatedContent = content;
-  images.forEach((file, index) => {
+  files.forEach((file, index) => {
     const imageUrl = `/uploads/${file.filename}`;
     console.log(index + ` (img${index}.feproldo) ` + imageUrl)
-    updatedContent = updatedContent.replaceAll(`(img${index}.feproldo)`, "("+server+imageUrl+")");
+    // updatedContent = updatedContent.replaceAll(`(img${index}.feproldo)`, "("+server+imageUrl+")");
     updatedContent = updatedContent.replaceAll(`file${index}.feproldo`, server+imageUrl)
     console.log("\n"+updatedContent)
   });
