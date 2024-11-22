@@ -40,17 +40,21 @@ import { server } from '~/public/utils';
     });
 
     import { ref, computed } from 'vue';
-    const searchQuery = ref('');
+    // const searchQuery = ref('');
 
     const filteredPosts = computed(() => {
-        if (searchQuery.value === '') {
-            return blogs.value;
-        }
-        return blogs.value.filter(post => {
-            return post.title.includes(searchQuery.value) ||
-                post.article.includes(searchQuery.value) ||
-                post.titleArticle.includes(searchQuery.value);
-        });
+        if(activeTags.value.length == 0) return blogs.value;
+        return blogs.value.filter(post => 
+            post.tags.some(tag => activeTags.value.includes(tag)) // Проверяем пересечение тегов
+        );
+        // if (searchQuery.value === '') {
+        //     return blogs.value;
+        // }
+        // return blogs.value.filter(post => {
+        //     return post.title.includes(searchQuery.value) ||
+        //         post.article.includes(searchQuery.value) ||
+        //         post.titleArticle.includes(searchQuery.value);
+        // });
     });
 
 
@@ -192,10 +196,46 @@ var tagsRef = ref(null)
 var tags = ref([
     {
         name: "Веб девлог",
-        active: false
+        tag: 'weblog'
+    },
+    {
+        name: 'Голосовое',
+        tag: 'voice'
+    },
+    {
+        name: "Game-devlog",
+        tag: 'gamelog'
+    },
+    {
+        name: 'nuxt / vue',
+        tag: 'nuxt'
+    },
+    {
+        name: 'node.js',
+        tag: 'node'
+    },
+    {
+        name: 'Monicord',
+        tag: 'monicord'
+    },
+    {
+        name: 'Другое',
+        tag: 'other'
     }
 ])
-
+var activeTags = ref(
+    [
+        
+    ]
+)
+function chooseTag(tag) {
+    if(activeTags.value.includes(tag)) {
+        activeTags.value = activeTags.value.filter(el => el !== tag)
+    }
+    else {
+        activeTags.value.push(tag);
+    }
+}
 // var focusImg = ref({
 //     isFocused: false,
 //     src: ""
@@ -207,6 +247,18 @@ var tags = ref([
 //         src: src
 //     }
 // }
+onMounted(() => {
+    const blocks = document.querySelectorAll('.tags'); 
+    blocks.forEach(block => {
+        block.addEventListener('wheel', (event) => { 
+            if (event.deltaY !== 0) { 
+                event.preventDefault(); 
+                // block.scrollBy({ left: event.deltaY > 0 ? block.offsetWidth : -block.offsetWidth, behavior: 'smooth' });
+                block.scrollLeft += event.deltaY;
+            } 
+        });
+    });
+})
 </script>
 
 <template>
@@ -216,18 +268,18 @@ var tags = ref([
         <div class="container">
             <div class="border" v-if="false"><h1>feproldo's web-log</h1></div>
             <div class="header">
-                <div class="input">
+                <!-- <div class="input">
                     <input type="text" placeholder="Поиск..." v-model="searchQuery">
                     <div class="icon">
                         <svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'><g id="search_line" fill='none' fill-rule='evenodd'><path fill='#09244BFF' d='M10.5 2a8.5 8.5 0 1 0 5.262 15.176l3.652 3.652a1 1 0 0 0 1.414-1.414l-3.652-3.652A8.5 8.5 0 0 0 10.5 2M4 10.5a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0'/></g></svg>
                     </div>
-                </div>
+                </div> -->
                 <div class="tags_container">
                     <div class="icon_left" @click="scrollLeft">
                         <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g id="left_fill" fill='none' fill-rule='evenodd'><path fill='#09244BFF' d='M7.94 13.06a1.5 1.5 0 0 1 0-2.12l5.656-5.658a1.5 1.5 0 1 1 2.121 2.122L11.122 12l4.596 4.596a1.5 1.5 0 1 1-2.12 2.122L7.938 13.06Z'/></g></svg>
                     </div>
                     <div class="tags" :ref="tagsRef">
-                        <div class="tag" v-for="(el, index) in tags" :key="index" :class="{active_tag: el.active}">
+                        <div class="tag" v-for="(el, index) in tags" :key="index" :class="{active_tag: activeTags.includes(el.tag)}" @click="chooseTag(el.tag)">
                             {{ el.name }}
                         </div>
                     </div>
@@ -237,7 +289,7 @@ var tags = ref([
                 </div>
                 <div class="tip">
                     <p>
-                        Листайте, наведясь на тэги, нажимая Shift + Прокрут Колеса
+                        Листайте, наведясь на тэги
                     </p>
                 </div>
             </div>
@@ -381,6 +433,7 @@ var tags = ref([
                         width: 100%;
                         margin-top: 8px;
                         overflow-x: scroll;
+                        scroll-behavior: none;
                         .tag {
                             display: inline-block;
                             background-color: vars.$background;

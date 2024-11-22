@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const multer = require('multer')
 const moment = require('moment-timezone');
 const PORT = 3005;
-const isDev = false;
+const isDev = true;
 const server = isDev ? "http://localhost:3005" : "https://blogapi.feproldo.ru";
 
 // const uploadDir = '/uploads';
@@ -53,6 +53,7 @@ const postSchema = new mongoose.Schema({
             weight: String
         }
     ],
+    tags: [String],
     rating: Number,
     article: String,
     date: Date
@@ -123,7 +124,7 @@ app.get('/posts', async (req, res) => {
 });
 
 app.post('/createPost', upload.fields([{ name: 'imgs', maxCount: Infinity }, { name: 'files', maxCount: Infinity }]), (req, res) => {
-    const { author, text, article, passwd } = JSON.parse(req.body.data);
+    const { author, text, article, passwd, tags } = JSON.parse(req.body.data);
     //console.log(req.body.data)
     if(!login(passwd)) {
         return res.json({res: false}).status(400)
@@ -150,12 +151,14 @@ app.post('/createPost', upload.fields([{ name: 'imgs', maxCount: Infinity }, { n
         //console.log((file.size / 1024 / 1024))
       });
     }
+    const tagss = tags.split(' ')
     const post = new Post({
         text: text,
         author: author,
         imgs: imgs,
         files: files,
         rating: 0,
+        tags: tagss,
         article: article,
         date: moment().tz('Asia/Yekaterinburg').toDate()
     })

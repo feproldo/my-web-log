@@ -9,6 +9,8 @@ var imgs = ref("");
 
 var files = ref([])
 
+var tags = ref('')
+
 var idd = ref()
 function send() {
     axios.post(server+'login', { passwd: pass.value })
@@ -78,7 +80,8 @@ function createPost() {
         imgs: imgs,
         files: files,
         article: article.value,
-        passwd: pass.value
+        passwd: pass.value,
+        tags: tags.value
     }))
 
     // var filereq = [];
@@ -119,6 +122,7 @@ function createPost() {
             <!-- <input type="text" placeholder="linkFile&&linkFile" v-model="filesUrl">
             <input type="text" placeholder="linkName&&linkName" v-model="filesName"> -->
             <input type="text" placeholder="article" v-model="article">
+            <input type="text" placeholder="tags (use space)" v-model="tags">
             <div class="flex">
                 <input type="file" id="files" name="files" @change="imgsUpload" multiple> <h5>imgs</h5>
             </div>
