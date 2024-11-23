@@ -10,7 +10,7 @@ const moment = require('moment-timezone');
 const MarkdownIt = require('markdown-it');
 const md = new MarkdownIt();
 const PORT = 3005;
-const isDev = true;
+const isDev = false;
 const server = isDev ? "http://localhost:3005" : "https://blogapi.feproldo.ru";
 
 // const uploadDir = '/uploads';
