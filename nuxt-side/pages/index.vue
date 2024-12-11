@@ -45,7 +45,8 @@ import { server } from '~/public/utils';
     const filteredPosts = computed(() => {
         if(activeTags.value.length == 0) return blogs.value;
         return blogs.value.filter(post => 
-            post.tags.some(tag => activeTags.value.includes(tag)) // Проверяем пересечение тегов
+            // post.tags.some(tag => activeTags.value.includes(tag)) // Проверяем пересечение тегов
+            post.tags.join(' ').includes(activeTags.value.join(' '))
         );
         // if (searchQuery.value === '') {
         //     return blogs.value;
