@@ -22,16 +22,13 @@ const storage = multer.diskStorage({
       cb(null, 'uploads/'); // Указываем папку для загрузки
     },
     filename: function (req, file, cb) {
-      cb(null, Date.now() + path.extname(file.originalname)); // Уникальное имя файла
+      cb(null, Date.now() + path.extname(file.originalname));
     }
   });
   
   const upload = multer({ storage: storage });
 
-mongoose.connect('mongodb://localhost:27017/posts', {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true
-}).then(() => {
+mongoose.connect('mongodb://localhost:27017/posts', {}).then(() => {
     console.log('Успешно подключено к базе данных');
 }).catch((error) => {
     console.error('Ошибка подключения к базе данных:', error);
@@ -76,50 +73,18 @@ const Article = mongoose.model('Article', articleSchema, 'articles');
 
 app.use(express.json());
 const corsOptions = isDev ? null : {
-    origin: 'https://blog.feproldo.ru', // без завершающего слэша
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // если нужны дополнительные методы
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // если нужны дополнительные заголовки
-    // credentials: true // если нужен доступ к cookies
+    origin: 'https://blog.feproldo.ru',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 
 app.use(cors(corsOptions));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-// app.use(fileUpload());
-// app.use('/files', express.static(uploadDir));
-
-// //files
-
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, uploadDir);
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, file.originalname); // Можно добавить уникальные имена
-//     }
-// });
-
-// const upload = multer({ storage: storage });
-
-// app.post('/upload', upload.array('files', 10), (req, res) => {
-//     if (!req.files || req.files.length === 0) {
-//         return res.status(400).send('Ошибка при загрузке файлов.');
-//     }
-
-//     const filesData = req.files.map(file => ({
-//         name: file.originalname,
-//         url: `/files/${file.filename}`,
-//         weight: (file.size / 1024).toFixed(2) + ' KB' // Вес файла в килобайтах
-//     }));
-
-//     res.json({ files: filesData }); // Возвращаем данные о файлах
-// });
-
-//files
 
 app.get('/posts', async (req, res) => {
     try {
-        const posts = await Post.find(); // Получаем все посты из базы данных
-        res.json(posts); // Отправляем посты в формате JSON
+        const posts = await Post.find();
+        res.json(posts);
     } catch (error) {
         res.status(500).send('Ошибка при получении постов.');
     }
@@ -127,7 +92,6 @@ app.get('/posts', async (req, res) => {
 
 app.post('/createPost', upload.fields([{ name: 'imgs', maxCount: Infinity }, { name: 'files', maxCount: Infinity }]), (req, res) => {
     const { author, text, article, passwd, tags } = JSON.parse(req.body.data);
-    //console.log(req.body.data)
     if(!login(passwd)) {
         return res.json({res: false}).status(400)
     }
@@ -135,7 +99,6 @@ app.post('/createPost', upload.fields([{ name: 'imgs', maxCount: Infinity }, { n
     var files = []
     if (req.files['imgs']) {
       req.files['imgs'].forEach(file => {
-        //console.log(`Изображение: ${file.originalname}, URL: /uploads/${file.filename}`);
         imgs.push({
           name: file.originalname,
           url: `/uploads/${file.filename}`
@@ -144,13 +107,11 @@ app.post('/createPost', upload.fields([{ name: 'imgs', maxCount: Infinity }, { n
     }
     if (req.files['files']) {
       req.files['files'].forEach(file => {
-        //console.log(`Документ: ${file.originalname}, URL: /uploads/${file.filename}`);
         files.push({
           name: file.originalname,
           url: `/uploads/${file.filename}`,
           weight: (Math.round(file.size / 1024 / 1024)) + "Мб"
         })
-        //console.log((file.size / 1024 / 1024))
       });
     }
     const tagss = tags.split(' ')
@@ -173,7 +134,6 @@ app.post('/createPost', upload.fields([{ name: 'imgs', maxCount: Infinity }, { n
 
 app.post('/deletePost', async (req, res) => {
     const { id, passwd } = req.body;
-    //console.log("delete")
     if(!login(passwd)) {
         return res.json({res: false}).status(400)
     }
@@ -181,10 +141,8 @@ app.post('/deletePost', async (req, res) => {
 
   if(ress) {
     res.status(200).send("deleted");
-    //console.log("deleted");
   } else {
     res.status(400).send("not deleted");
-    //console.log("not deleted 400");
   }
 });
 
@@ -200,43 +158,18 @@ app.post('/login', (req, res) => {
 
 
 
-app.post('/like', async (req, res) => {
-  return res.status(404);
-    const { postId, action } = req.body;
-    //console.log(action)
-    // if(action > 2 || action < -2) return res.status(400);
-    if(action != -1 && action != 1) return res.status(400);
-    const rate = (await Post.findById(postId).select('rating')).rating;
-    const updatedDocument = await Post.findByIdAndUpdate(
-        postId, 
-        { rating: rate+action }, 
-    );
-    // if(action == "addLike") {
-    //     const updatedDocument = await Post.findByIdAndUpdate(
-    //         postId, 
-    //         { rating: rate+1 }, 
-    //     );
-    // }
-    // else if(action == "removeDislike") {
-    //     const updatedDocument = await Post.findByIdAndUpdate(
-    //         postId, 
-    //         { rating: rate+1 }, 
-    //     );
-    // }
-    // else if(action == "addDislike" || action == "removeLike") {
-    //     const updatedDocument = await Post.findByIdAndUpdate(
-    //         postId, 
-    //         { rating: rate-1 }, 
-    //     );
-    // }
-    // else if (action == "removeLike") {
-    //     const updatedDocument = await Post.findByIdAndUpdate(
-    //         postId, 
-    //         { rating: rate-1 }, 
-    //     );
-    // }
-    res.status(200)
-})
+// app.post('/like', async (req, res) => {
+//   return res.status(404);
+//     const { postId, action } = req.body;
+//     //console.log(action)
+//     if(action != -1 && action != 1) return res.status(400);
+//     const rate = (await Post.findById(postId).select('rating')).rating;
+//     const updatedDocument = await Post.findByIdAndUpdate(
+//         postId, 
+//         { rating: rate+action }, 
+//     );
+//     res.status(200)
+// })
 app.post('/article', async (req, res) => {
   const { id } = req.body;
 
@@ -259,32 +192,13 @@ app.post('/article', async (req, res) => {
 });
 
 function login(passwd) {
-    if(passwd == (isDev ? "123" : "feproldo@chiv1337!")) {
+    if(passwd == (isDev ? "123" : "passwd (bruh, i show it...)")) {
         return true;
     }
     else {
         return false;
     }
 }
-
-
-// app.post('/loadImg', (req, res) => {
-//     if (!req.files || Object.keys(req.files).length === 0) {
-//         return res.status(400).send('No files were uploaded.');
-//     }
-
-//     let sampleFile = req.files.file;
-//     let fileIndex = fs.readdirSync(uploadDir).length + 1;
-//     let uploadPath = path.join(uploadDir, `${fileIndex}${path.extname(sampleFile.name)}`);
-
-//     sampleFile.mv(uploadPath, (err) => {
-//         if (err) {
-//             return res.status(500).send(err);
-//         }
-
-//         res.send('File uploaded!');
-//     });
-// });
 async function deletebyidA(id) {
   try {
     const deletedArticle = await Article.findOneAndDelete({ id: id });
@@ -302,10 +216,8 @@ app.post('/deleteArticle', async (req, res) => {
 
 if(ress) {
   res.status(200).send("deleted");
-  //console.log("deleted");
 } else {
   res.status(400).send("not deleted");
-  //console.log("not deleted 400");
 }
 });
 async function deletebyid(id) {
@@ -322,7 +234,6 @@ async function deletebyid(id) {
         });
       });
 
-      // Удаляем документы из файловой системы
       result.files.forEach(file => {
         const filePath = path.join(__dirname, file.url);
         fs.unlink(filePath, err => {
